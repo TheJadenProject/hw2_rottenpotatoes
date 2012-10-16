@@ -9,16 +9,39 @@ class MoviesController < ApplicationController
   def index
 	@movie_highlight = ""
 	@release_highlight = ""
+	@sort = ""
+	@all_ratings = Movie.all_ratings
+	@ratings = {}
+
+	if (params[:ratings] != nil)
+		@ratings = params[:ratings]
+		if (params[:sort] == "title")
+			@movies = Movie.all_by_rating(params[:ratings].keys, "title")
+		elsif (params[:sort] == "release") 
+ 			@movies = Movie.all_by_rating(params[:ratings].keys, "release_date")
+		else
+			@movies = Movie.all_by_rating(params[:ratings].keys, nil)		
+		end
+	else
+		@all_ratings.each do |rating|
+			@ratings[rating] = "1"
+		end
+		if (params[:sort] == "title")
+			@movies = Movie.find(:all, :order => "title")
+		elsif (params[:sort] == "release") 
+	 		@movies = Movie.find(:all, :order => "release_date")
+		else
+			@movies = Movie.all
+		end	
+	end
 
     if (params[:sort] == "title")
-		@movies = Movie.find(:all, :order => "title")
 		@movie_highlight = "hilite"
+		@sort = "title"
     elsif (params[:sort] == "release") 
- 		@movies = Movie.find(:all, :order => "release_date")
 		@release_highlight = "hilite"
-    else
-	    @movies = Movie.all
-	end	
+		@sort = "release"
+	end 
   end
 
   def new
