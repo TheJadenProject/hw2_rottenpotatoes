@@ -13,35 +13,35 @@ class MoviesController < ApplicationController
 	@all_ratings = Movie.all_ratings
 	@ratings = {}
 
-	if (params[:ratings] != nil)
+	if (params[:ratings] == nil)
+		if (session[:ratings] == nil)
+			@all_ratings.each do |rating|
+				@ratings[rating] = "1"
+			end
+			session[:ratings] = @ratings
+		end
+
+		redirect_to movies_path :ratings => session[:ratings], :sort => session[:sort]
+	else
 		@ratings = params[:ratings]
+		session[:ratings] = params[:ratings]
+		session[:sort] = params[:sort]
 		if (params[:sort] == "title")
 			@movies = Movie.all_by_rating(params[:ratings].keys, "title")
 		elsif (params[:sort] == "release") 
- 			@movies = Movie.all_by_rating(params[:ratings].keys, "release_date")
+			@movies = Movie.all_by_rating(params[:ratings].keys, "release_date")
 		else
 			@movies = Movie.all_by_rating(params[:ratings].keys, nil)		
 		end
-	else
-		@all_ratings.each do |rating|
-			@ratings[rating] = "1"
-		end
-		if (params[:sort] == "title")
-			@movies = Movie.find(:all, :order => "title")
-		elsif (params[:sort] == "release") 
-	 		@movies = Movie.find(:all, :order => "release_date")
-		else
-			@movies = Movie.all
-		end	
-	end
 
-    if (params[:sort] == "title")
-		@movie_highlight = "hilite"
-		@sort = "title"
-    elsif (params[:sort] == "release") 
-		@release_highlight = "hilite"
-		@sort = "release"
-	end 
+		if (params[:sort] == "title")
+			@movie_highlight = "hilite"
+			@sort = "title"
+		elsif (params[:sort] == "release") 
+			@release_highlight = "hilite"
+			@sort = "release"
+		end
+	end
   end
 
   def new
